@@ -6,7 +6,8 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  // Note: `output: "standalone"` can fail on Windows/OneDrive with EPERM during symlink tracing.
+  // Docker/Railway builds still use `pnpm build` + `next start` with a full `.next` output.
   outputFileTracingRoot: path.join(__dirname),
 };
 

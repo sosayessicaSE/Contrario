@@ -18,7 +18,7 @@
 
 ## Operational notes
 
-- **Windows + OneDrive**: `next build` with `output: "standalone"` may fail at the “symlink traced files” step with `EPERM`. Linux/Railway builds should be fine. This repo’s Dockerfile runs Linux builds.
+- **Windows + OneDrive**: `output: "standalone"` was avoided because `next build` can fail at the “symlink traced files” step with `EPERM`. Production uses `next start` with a normal `.next` build output.
 - **Seed**: `pnpm db:seed` creates ~10k notes plus overlapping fixtures. Use `SEED_RESET=1` to delete seed orgs by slug prefix (`seed-org-*`) before re-seeding.
 
 ## Follow-ups (if more time)

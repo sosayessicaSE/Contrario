@@ -4,15 +4,13 @@ import { createClient } from "@supabase/supabase-js";
 import { and, eq, inArray } from "drizzle-orm";
 import * as schema from "../src/lib/db/schema";
 
-const {
-  DATABASE_URL,
-  NEXT_PUBLIC_SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY,
-  SEED_USER_PASSWORD = "Password123!Seed",
-  SEED_RESET,
-} = process.env;
+const databaseUrl = process.env.DATABASE_URL;
+const nextPublicSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SEED_USER_PASSWORD = process.env.SEED_USER_PASSWORD ?? "Password123!Seed";
+const SEED_RESET = process.env.SEED_RESET;
 
-if (!DATABASE_URL) {
+if (!databaseUrl) {
   console.error("DATABASE_URL is required");
   process.exit(1);
 }
@@ -37,7 +35,7 @@ function mulberry32(seed: number) {
 }
 
 async function ensureAuthUsers(): Promise<string[]> {
-  if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!nextPublicSupabaseUrl || !serviceRoleKey) {
     console.warn("Skipping Supabase Auth user creation (missing service role env).");
     const raw = process.env.SEED_USER_IDS;
     if (!raw) throw new Error("Provide SEED_USER_IDS (6 UUIDs) or Supabase service role env vars.");
@@ -46,7 +44,7 @@ async function ensureAuthUsers(): Promise<string[]> {
     return ids.slice(0, 6);
   }
 
-  const admin = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  const admin = createClient(nextPublicSupabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
@@ -89,7 +87,7 @@ async function upsertTag(db: ReturnType<typeof drizzle>, orgId: string, name: st
 }
 
 async function main() {
-  const client = postgres(DATABASE_URL, { max: 1, prepare: false });
+  const client = postgres(databaseUrl, { max: 1, prepare: false });
   const db = drizzle(client, { schema });
 
   await resetSeedData(db);

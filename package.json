@@ -1,0 +1,39 @@
+{
+  "name": "contrario-notes",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "node ./scripts/start.mjs",
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx scripts/seed.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.1",
+    "diff": "^9.0.0",
+    "drizzle-orm": "^0.40.0",
+    "next": "^15.2.4",
+    "postgres": "^3.4.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "drizzle-kit": "^0.30.5",
+    "eslint": "^9.22.0",
+    "eslint-config-next": "^15.2.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  },
+  "packageManager": "pnpm@9.15.4+sha512.c2e2627fcee49cbf0015e959088dd541c2ebcfb79700a03b8b8a28c474e4741d9b0ecfa698032e33fbeb21b59a8a00c1a46354f7aeeba7aefbdbc8a3a6bfb7b4"
+}

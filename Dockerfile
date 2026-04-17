@@ -1,12 +1,14 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
-RUN corepack enable
+# Install pnpm without Corepack: avoids "Mismatch hashes" when Corepack's
+# expected digest for packageManager differs from the registry tarball (common in CI/Docker).
+RUN npm install -g pnpm@9.15.4
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 FROM node:20-alpine AS build
 WORKDIR /app
-RUN corepack enable
+RUN npm install -g pnpm@9.15.4
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
@@ -20,7 +22,6 @@ RUN pnpm build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-RUN corepack enable
 COPY --from=build /app/package.json /app/pnpm-lock.yaml ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next

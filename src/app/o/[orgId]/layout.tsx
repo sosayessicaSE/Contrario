@@ -25,7 +25,7 @@ export default async function OrgLayout({
   const orgs = await listMyOrganizations();
 
   return (
-    <div className="stack" style={{ minHeight: "100vh" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <header
         style={{
           borderBottom: "1px solid var(--border)",
@@ -46,11 +46,11 @@ export default async function OrgLayout({
           <Link href={`/o/${orgId}/notes`}>Notes</Link>
           <Link href={`/o/${orgId}/search`}>Search</Link>
           <Link href={`/o/${orgId}/files`}>Files</Link>
-          <Link href="/">Home</Link>
+          <Link href={`/o/${orgId}`}>Home</Link>
           <SignOutButton />
         </nav>
       </header>
-      <main style={{ padding: "1rem", maxWidth: 1100, margin: "0 auto", width: "100%" }}>{children}</main>
+      <main style={{ flex: 1, width: "100%", minHeight: 0, display: "flex", flexDirection: "column" }}>{children}</main>
     </div>
   );
 }

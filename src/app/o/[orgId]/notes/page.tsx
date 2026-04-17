@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { listNotesForOrg, createNote } from "@/server/actions/notes";
 import { requireAuthContext } from "@/server/actions/context";
+import { FormSubmitButton } from "@/components/form-submit-button";
+import { OrgMainInset } from "../org-main-inset";
 
 export const dynamic = "force-dynamic";
 
@@ -22,8 +24,9 @@ export default async function NotesPage({ params }: { params: Promise<{ orgId: s
   }
 
   return (
-    <div className="stack">
-      <h1 style={{ margin: 0 }}>Notes</h1>
+    <OrgMainInset>
+      <div className="stack">
+        <h1 style={{ margin: 0 }}>Notes</h1>
       <div className="card stack">
         <h2 style={{ margin: 0 }}>New note</h2>
         <form action={create} className="stack">
@@ -38,9 +41,9 @@ export default async function NotesPage({ params }: { params: Promise<{ orgId: s
             </select>
           </label>
           <input name="tags" placeholder="Tags (comma-separated)" />
-          <button className="primary" type="submit">
+          <FormSubmitButton className="primary" pendingLabel="Creating…">
             Create
-          </button>
+          </FormSubmitButton>
         </form>
       </div>
 
@@ -62,6 +65,7 @@ export default async function NotesPage({ params }: { params: Promise<{ orgId: s
           <div className="muted">No notes yet.</div>
         )}
       </div>
-    </div>
+      </div>
+    </OrgMainInset>
   );
 }

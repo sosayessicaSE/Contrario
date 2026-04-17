@@ -2,8 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteNote, getNoteDetail, setNoteShares, updateNote } from "@/server/actions/notes";
 import { listOrgMembers } from "@/server/actions/orgs";
+import { FormSubmitButton } from "@/components/form-submit-button";
 import { VersionDiff } from "./version-diff";
 import { AiPanel } from "./ai-panel";
+import { hashNoteInput } from "@/lib/ai/provider";
+import { OrgMainInset } from "../../org-main-inset";
 
 export const dynamic = "force-dynamic";
 
@@ -44,16 +47,19 @@ export default async function NotePage({ params }: { params: Promise<{ orgId: st
     createdAt: v.createdAt.toISOString(),
   }));
 
+  const noteInputHash = hashNoteInput(detail.note.title, detail.note.body);
   const summaries = detail.summaries.map((s) => ({
     id: s.id,
     status: s.status,
     model: s.model,
     outputJson: s.outputJson,
+    inputHash: s.inputHash,
     createdAt: s.createdAt.toISOString(),
   }));
 
   return (
-    <div className="stack">
+    <OrgMainInset>
+      <div className="stack">
       <div className="row" style={{ justifyContent: "space-between" }}>
         <Link href={`/o/${orgId}/notes`} className="small">
           ← Back
@@ -79,9 +85,9 @@ export default async function NotePage({ params }: { params: Promise<{ orgId: st
             </select>
           </label>
           <input name="tags" defaultValue={detail.tagNames.join(", ")} placeholder="Tags (comma-separated)" />
-          <button className="primary" type="submit">
+          <FormSubmitButton className="primary" pendingLabel="Saving…">
             Save
-          </button>
+          </FormSubmitButton>
         </form>
       </div>
 
@@ -99,7 +105,7 @@ export default async function NotePage({ params }: { params: Promise<{ orgId: st
                   </span>
                 </label>
               ))}
-            <button type="submit">Update shares</button>
+            <FormSubmitButton pendingLabel="Updating…">Update shares</FormSubmitButton>
           </form>
         </div>
       ) : null}
@@ -121,7 +127,8 @@ export default async function NotePage({ params }: { params: Promise<{ orgId: st
         <VersionDiff versions={versions} />
       </div>
 
-      <AiPanel orgId={orgId} noteId={noteId} summaries={summaries} />
-    </div>
+      <AiPanel key={noteId} orgId={orgId} noteId={noteId} noteInputHash={noteInputHash} summaries={summaries} />
+      </div>
+    </OrgMainInset>
   );
 }

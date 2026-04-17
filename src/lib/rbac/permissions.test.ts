@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { can, canReadNote } from "./permissions";
+import { can, canReadNote, canUpdateNote } from "./permissions";
 import type { AuthContext } from "./permissions";
 
 const member = (orgId: string, userId: string): AuthContext => ({
@@ -99,5 +99,42 @@ describe("canReadNote", () => {
         sharedUserIds: ["u1"],
       }),
     ).toBe(true);
+  });
+});
+
+describe("canUpdateNote", () => {
+  const orgId = "00000000-0000-0000-0000-000000000001";
+
+  it("allows member to update another user's org-visible note", () => {
+    expect(
+      canUpdateNote(member(orgId, "u1"), {
+        orgId,
+        visibility: "org",
+        createdBy: "other",
+        sharedUserIds: [],
+      }),
+    ).toBe(true);
+  });
+
+  it("denies member updating someone else's private note", () => {
+    expect(
+      canUpdateNote(member(orgId, "u1"), {
+        orgId,
+        visibility: "private",
+        createdBy: "other",
+        sharedUserIds: [],
+      }),
+    ).toBe(false);
+  });
+
+  it("denies member updating shared note when not creator, admin, or owner", () => {
+    expect(
+      canUpdateNote(member(orgId, "u1"), {
+        orgId,
+        visibility: "shared",
+        createdBy: "other",
+        sharedUserIds: ["u1"],
+      }),
+    ).toBe(false);
   });
 });

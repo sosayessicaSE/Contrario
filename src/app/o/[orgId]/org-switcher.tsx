@@ -11,7 +11,7 @@ export function OrgSwitcherClient({
 }) {
   const router = useRouter();
   return (
-    <select value={currentOrgId} onChange={(e) => router.push(`/o/${e.target.value}/notes`)} style={{ minWidth: 220 }}>
+    <select value={currentOrgId} onChange={(e) => router.push(`/o/${e.target.value}`)} style={{ minWidth: 220 }}>
       {orgs.map((o) => (
         <option key={o.id} value={o.id}>
           {o.name}

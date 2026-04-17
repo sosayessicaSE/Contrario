@@ -1,5 +1,6 @@
 import { searchNotes } from "@/server/actions/notes";
 import Link from "next/link";
+import { OrgMainInset } from "../org-main-inset";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,8 @@ export default async function SearchPage({
   const results = q.trim() ? await searchNotes(orgId, q.trim(), 50) : [];
 
   return (
-    <div className="stack">
+    <OrgMainInset>
+      <div className="stack">
       <h1 style={{ margin: 0 }}>Search</h1>
       <form className="row">
         <input name="q" defaultValue={q} placeholder="Search titles, body, tags…" style={{ flex: 1, minWidth: 240 }} />
@@ -42,6 +44,7 @@ export default async function SearchPage({
           <div className="muted">{q.trim() ? "No results." : "Enter a query."}</div>
         )}
       </div>
-    </div>
+      </div>
+    </OrgMainInset>
   );
 }

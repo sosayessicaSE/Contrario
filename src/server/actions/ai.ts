@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { eq, and } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { aiNoteSummaries } from "@/lib/db/schema";
@@ -28,6 +29,7 @@ export async function acceptAiSummary(orgId: string, summaryId: string) {
     .set({ status: "accepted" })
     .where(and(eq(aiNoteSummaries.id, summaryId), eq(aiNoteSummaries.orgId, orgId)));
   logEvent("info", "ai.summary_accepted", { orgId, summaryId, userId: ctx.userId });
+  revalidatePath(`/o/${orgId}/notes/${s.noteId}`);
 }
 
 export async function rejectAiSummary(orgId: string, summaryId: string) {
@@ -50,4 +52,5 @@ export async function rejectAiSummary(orgId: string, summaryId: string) {
     .set({ status: "rejected" })
     .where(and(eq(aiNoteSummaries.id, summaryId), eq(aiNoteSummaries.orgId, orgId)));
   logEvent("info", "ai.summary_rejected", { orgId, summaryId, userId: ctx.userId });
+  revalidatePath(`/o/${orgId}/notes/${s.noteId}`);
 }

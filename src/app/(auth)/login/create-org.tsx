@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createOrganization } from "@/server/actions/orgs";
+import { LoadingSpinner } from "@/components/loading-spinner";
+import { createOrganization, joinOrganization } from "@/server/actions/orgs";
 
-export function CreateOrgForm() {
+export type JoinableOrg = { id: string; name: string; slug: string };
+
+export function CreateOrgForm({ orgs }: { orgs: JoinableOrg[] }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [selectedOrgId, setSelectedOrgId] = useState("");
 
   return (
     <form
@@ -14,10 +18,15 @@ export function CreateOrgForm() {
         e.preventDefault();
         setError(null);
         const fd = new FormData(e.currentTarget);
-        const name = String(fd.get("orgName") ?? "");
+        const pick = String(fd.get("existingOrg") ?? "");
         start(async () => {
           try {
-            await createOrganization(name);
+            if (pick) {
+              await joinOrganization(pick);
+            } else {
+              const name = String(fd.get("orgName") ?? "");
+              await createOrganization(name);
+            }
           } catch (err) {
             setError(err instanceof Error ? err.message : "Failed");
           }
@@ -25,12 +34,35 @@ export function CreateOrgForm() {
       }}
     >
       <label className="stack">
-        <span className="small muted">Organization name</span>
-        <input name="orgName" placeholder="Acme Corp" required />
+        <span className="small muted">Organization</span>
+        <select
+          name="existingOrg"
+          value={selectedOrgId}
+          onChange={(e) => setSelectedOrgId(e.target.value)}
+          aria-label="Join an existing organization or create a new one"
+        >
+          <option value="">Create a new organization…</option>
+          {orgs.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.name} ({o.slug})
+            </option>
+          ))}
+        </select>
       </label>
+
+      {selectedOrgId ? null : (
+        <label className="stack">
+          <span className="small muted">New organization name</span>
+          <input name="orgName" placeholder="Acme Corp" required={!selectedOrgId} disabled={Boolean(selectedOrgId)} />
+        </label>
+      )}
+
       {error ? <div className="error small">{error}</div> : null}
-      <button className="primary" type="submit" disabled={pending}>
-        {pending ? "Creating…" : "Create organization"}
+      <button className="primary" type="submit" disabled={pending} aria-busy={pending}>
+        <span className="btn-with-spinner">
+          {pending ? <LoadingSpinner size="sm" decorative /> : null}
+          {pending ? "Working…" : selectedOrgId ? "Join organization" : "Create organization"}
+        </span>
       </button>
     </form>
   );

@@ -4,11 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/db";
 import { organizations, orgMemberships, profiles } from "@/lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { getSessionUser, ensureProfile } from "@/lib/auth/session";
 import { can } from "@/lib/rbac/permissions";
 import { requireAuthContext } from "./context";
 import { logEvent } from "@/lib/logging/logger";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function slugify(input: string) {
   return (
@@ -39,7 +41,36 @@ export async function createOrganization(name: string) {
   await db.insert(orgMemberships).values({ orgId: org!.id, userId: user.id, role: "owner" });
   logEvent("info", "org.created", { orgId: org!.id, userId: user.id });
   revalidatePath("/");
-  redirect(`/o/${org!.id}/notes`);
+  redirect(`/o/${org!.id}/`);
+}
+
+/** All orgs (id, name, slug) for onboarding join picker. Caller must only use for authenticated flows. */
+export async function listJoinableOrganizations() {
+  const user = await getSessionUser();
+  if (!user) return [];
+  const db = getDb();
+  return db
+    .select({ id: organizations.id, name: organizations.name, slug: organizations.slug })
+    .from(organizations)
+    .orderBy(asc(organizations.name), asc(organizations.id));
+}
+
+/** Add the current user as a member of an existing org (open join). */
+export async function joinOrganization(orgId: string) {
+  const user = await getSessionUser();
+  if (!user) throw new Error("Unauthorized");
+  if (!UUID_RE.test(orgId)) throw new Error("Invalid organization");
+  await ensureProfile(user.id, user.email);
+  const db = getDb();
+  const existing = await db.select({ id: organizations.id }).from(organizations).where(eq(organizations.id, orgId)).limit(1);
+  if (!existing[0]) throw new Error("Organization not found");
+  await db
+    .insert(orgMemberships)
+    .values({ orgId, userId: user.id, role: "member" })
+    .onConflictDoNothing({ target: [orgMemberships.orgId, orgMemberships.userId] });
+  logEvent("info", "org.joined", { orgId, userId: user.id });
+  revalidatePath("/");
+  redirect(`/o/${orgId}/`);
 }
 
 export async function listMyOrganizations() {

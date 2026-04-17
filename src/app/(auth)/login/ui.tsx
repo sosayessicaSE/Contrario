@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { LoadingSpinner } from "@/components/loading-spinner";
 
 export function LoginForm() {
   const router = useRouter();
@@ -61,8 +62,11 @@ export function LoginForm() {
           <input name="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required />
         </label>
         {error ? <div className="error small">{error}</div> : null}
-        <button className="primary" type="submit" disabled={pending}>
-          {pending ? "Working…" : mode === "signup" ? "Create account" : "Sign in"}
+        <button className="primary" type="submit" disabled={pending} aria-busy={pending}>
+          <span className="btn-with-spinner">
+            {pending ? <LoadingSpinner size="sm" decorative /> : null}
+            {pending ? "Working…" : mode === "signup" ? "Create account" : "Sign in"}
+          </span>
         </button>
       </form>
 

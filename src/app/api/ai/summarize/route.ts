@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getDb } from "@/lib/db";
@@ -106,6 +107,9 @@ export async function POST(req: Request) {
       durationMs: Date.now() - started,
       route: "POST /api/ai/summarize",
     });
+
+    revalidatePath(`/o/${json.orgId}/notes/${json.noteId}`);
+    revalidatePath(`/o/${json.orgId}/notes`);
 
     return NextResponse.json({ summary: row });
   } catch (e) {

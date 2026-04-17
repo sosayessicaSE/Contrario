@@ -46,6 +46,8 @@ export function canUpdateNote(ctx: AuthContext | null, note: NoteAccessContext):
   if (!canReadNote(ctx, note)) return false;
   if (!ctx) return false;
   if (!roleHasAction(ctx.role, "note:update")) return false;
+  // Org-wide notes: any member who can read may edit (shared workspace).
+  if (note.visibility === "org") return true;
   if (note.createdBy === ctx.userId) return true;
   if (ctx.role === "admin" || ctx.role === "owner") return true;
   return false;

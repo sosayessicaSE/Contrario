@@ -1,12 +1,21 @@
+import "dotenv/config";
+
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { createClient } from "@supabase/supabase-js";
 import { and, eq, inArray } from "drizzle-orm";
 import * as schema from "../src/lib/db/schema";
 
-const databaseUrl = process.env.DATABASE_URL;
-const nextPublicSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const databaseUrl = process.env.DATABASE_URL?.trim().replace(/[\r\n\t]/g, "") ?? "";
+
+let nextPublicSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/[\r\n\t]/g, "") ?? "";
+// Common copy/paste mistake: `https://xxx.supabase.cohttps` (missing newline before a second `https`)
+if (/^https:\/\/[a-z0-9-]+\.supabase\.cohttps$/i.test(nextPublicSupabaseUrl)) {
+  nextPublicSupabaseUrl = nextPublicSupabaseUrl.replace(/https$/i, "");
+  console.warn("Fixed NEXT_PUBLIC_SUPABASE_URL: removed stray trailing 'https'. Check your .env formatting.");
+}
+
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim().replace(/[\r\n\t]/g, "") ?? "";
 const SEED_USER_PASSWORD = process.env.SEED_USER_PASSWORD ?? "Password123!Seed";
 const SEED_RESET = process.env.SEED_RESET;
 

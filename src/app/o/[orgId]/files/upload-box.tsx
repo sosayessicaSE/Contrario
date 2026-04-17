@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -11,7 +12,13 @@ export function UploadBox({ orgId }: { orgId: string }) {
   return (
     <div className="card stack">
       <h2 style={{ margin: 0 }}>Upload</h2>
-      <div className="small muted">Org-scoped uploads (max 15MB). Requires Storage bucket `note-files`.</div>
+      <div className="small muted">Org-scoped uploads (max 15MB).</div>
+      {busy ? (
+        <div className="row" role="status" aria-live="polite" style={{ alignItems: "center" }}>
+          <LoadingSpinner size="sm" label="Uploading file" />
+          <span className="small muted">Uploading…</span>
+        </div>
+      ) : null}
       <input
         type="file"
         disabled={busy}

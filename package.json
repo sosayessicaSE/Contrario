@@ -8,9 +8,9 @@
     "start": "node ./scripts/start.mjs",
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:seed": "tsx scripts/seed.ts",
+    "db:migrate": "cross-env NODE_OPTIONS=--dns-result-order=ipv4first drizzle-kit migrate",
+    "db:push": "cross-env NODE_OPTIONS=--dns-result-order=ipv4first drizzle-kit push",
+    "db:seed": "cross-env NODE_OPTIONS=--dns-result-order=ipv4first tsx scripts/seed.ts",
     "test": "vitest run"
   },
   "dependencies": {
@@ -28,6 +28,8 @@
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2",
     "drizzle-kit": "^0.30.5",
     "eslint": "^9.22.0",
     "eslint-config-next": "^15.2.4",
